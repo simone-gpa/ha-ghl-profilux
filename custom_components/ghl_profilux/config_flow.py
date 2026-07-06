@@ -17,6 +17,12 @@ from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
+STEP_DISCLAIMER_SCHEMA = vol.Schema(
+    {
+        vol.Required("accept_risks", default=False): bool,
+    }
+)
+
 STEP_USER_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_HOST): str,
@@ -74,7 +80,23 @@ class ProfiLuxConfigFlow(ConfigFlow, domain=DOMAIN):
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Step iniziale: connessione e verifica credenziali."""
+        """Step 1: disclaimer — l'utente deve accettare esplicitamente i rischi."""
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            if not user_input.get("accept_risks"):
+                errors["base"] = "disclaimer_required"
+            else:
+                return await self.async_step_connect()
+        return self.async_show_form(
+            step_id="user",
+            data_schema=STEP_DISCLAIMER_SCHEMA,
+            errors=errors,
+        )
+
+    async def async_step_connect(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Step 2: connessione e verifica credenziali."""
         errors: dict[str, str] = {}
         if user_input is not None:
             host = user_input[CONF_HOST].strip()
@@ -100,7 +122,7 @@ class ProfiLuxConfigFlow(ConfigFlow, domain=DOMAIN):
                 )
 
         return self.async_show_form(
-            step_id="user",
+            step_id="connect",
             data_schema=STEP_USER_SCHEMA,
             errors=errors,
             description_placeholders={

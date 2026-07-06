@@ -2,6 +2,13 @@
   "config": {
     "step": {
       "user": {
+        "title": "GHL ProfiLux — Important warnings",
+        "description": "⚠️ **Unofficial integration — use at your own risk**\n\nThis integration communicates with the ProfiLux using the local protocol reverse-engineered by the community (not documented by GHL).\n\n**Before continuing, make sure you understand:**\n- Write commands (sockets, Feed Pause, Maintenance) directly modify the controller. Incorrect use may put the aquarium and its inhabitants at risk.\n- GHL may release a firmware update that breaks this integration without notice.\n- The authors are not affiliated with GHL and accept no liability for damage to the aquarium, equipment, or animals.\n- Only use with sockets already set to manual mode in the ProfiLux. Do not interfere with sockets controlled by timers or automatic functions.",
+        "data": {
+          "accept_risks": "I have read the warnings and accept all risks"
+        }
+      },
+      "connect": {
         "title": "GHL ProfiLux — Local connection",
         "description": "Enter the IP address of your ProfiLux and its login credentials.\n\n{ws_note}",
         "data": {
@@ -17,6 +24,7 @@
       }
     },
     "error": {
+      "disclaimer_required": "You must accept the warnings to continue.",
       "invalid_auth": "Invalid credentials (HTTP 401). Check username and password on the controller.",
       "cannot_connect": "Cannot connect to the ProfiLux. Check the IP, ensure the controller is reachable, and that the WebSocket interface is enabled.",
       "unknown": "Unexpected error. Check Home Assistant logs for details."
