@@ -1,0 +1,28 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "GHL ProfiLux — Connessione locale",
+        "description": "Inserisci l'indirizzo IP del ProfiLux e le credenziali di accesso.\n\n{ws_note}",
+        "data": {
+          "host": "Indirizzo IP",
+          "username": "Username",
+          "password": "Password"
+        },
+        "data_description": {
+          "host": "Indirizzo IP del ProfiLux sulla LAN (es. 192.168.1.50).",
+          "username": "Username configurato sul controller (default: admin).",
+          "password": "Password del controller ProfiLux."
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Credenziali non valide (HTTP 401). Verifica username e password sul controller.",
+      "cannot_connect": "Impossibile connettersi al ProfiLux. Verifica l'IP, che il controller sia raggiungibile e che il WebSocket sia abilitato.",
+      "unknown": "Errore imprevisto. Consulta i log di Home Assistant per i dettagli."
+    },
+    "abort": {
+      "already_configured": "Questo ProfiLux è già configurato."
+    }
+  }
+}

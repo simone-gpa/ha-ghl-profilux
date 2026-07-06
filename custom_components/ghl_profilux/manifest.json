@@ -1,0 +1,13 @@
+{
+  "domain": "ghl_profilux",
+  "name": "GHL ProfiLux",
+  "codeowners": ["@lutrib"],
+  "config_flow": true,
+  "documentation": "https://github.com/lutrib/ha-ghl-profilux",
+  "integration_type": "device",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/lutrib/ha-ghl-profilux/issues",
+  "loggers": ["custom_components.ghl_profilux"],
+  "requirements": [],
+  "version": "0.1.0"
+}
