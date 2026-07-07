@@ -158,23 +158,14 @@ class ProfiLuxCoordinator(DataUpdateCoordinator[ProfiLuxData]):
         # Allarme globale
         result.alarm = await client.async_read_alarm()
 
-        # Nomi sensori: letti una sola volta (costosi in termini di round-trip)
-        if not self._names_read:
-            for i in range(self._sensor_count):
-                try:
-                    name = await client.async_get_text(sensor_name_code(i))
-                except ProfiLuxError:
-                    name = None
-                self._sensor_names[i] = name
-            self._names_read = True
-            _LOGGER.debug("Nomi sensori letti: %s", self._sensor_names)
-
-        # Sensori
+        # Sensori: leggi tipo+valore, poi nome solo per sonde attive (1 round-trip per sonda)
+        active_indices: list[int] = []
         for i in range(self._sensor_count):
             sensor_raw = await client.async_read_sensor(i)
             sensor_type = sensor_raw.get("type")
             if sensor_type is None or sensor_type == 0:
                 continue  # slot vuoto
+            active_indices.append(i)
             result.sensors.append(
                 SensorData(
                     index=i,
@@ -183,6 +174,22 @@ class ProfiLuxCoordinator(DataUpdateCoordinator[ProfiLuxData]):
                     name=self._sensor_names.get(i),
                 )
             )
+
+        # Nomi: una sola volta, solo per le sonde attive trovate
+        if not self._names_read and active_indices:
+            for i in active_indices:
+                try:
+                    name = await client.async_get_text(sensor_name_code(i))
+                except ProfiLuxError:
+                    name = None
+                self._sensor_names[i] = name
+                # aggiorna il SensorData già inserito
+                for sd in result.sensors:
+                    if sd.index == i:
+                        sd.name = name
+                        break
+            self._names_read = True
+            _LOGGER.debug("Nomi sensori letti: %s", self._sensor_names)
 
         # Prese
         for i in range(self._switch_count):
