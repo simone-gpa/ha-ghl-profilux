@@ -89,10 +89,10 @@ _SENSOR_META: dict[
         SensorStateClass.MEASUREMENT,
         None,
     ),
-    # Tipi estesi — unità provvisorie; correggere se i valori non corrispondono
-    1140: (None, UnitOfElectricPotential.MILLIVOLT, SensorStateClass.MEASUREMENT, "mdi:flash"),
-    3843: (None, None, SensorStateClass.MEASUREMENT, "mdi:water-percent"),
-    3840: (None, None, SensorStateClass.MEASUREMENT, "mdi:water-percent"),
+    # Tipi estesi — confermati dall'utente
+    1140: (SensorDeviceClass.CONDUCTIVITY, "mS/cm", SensorStateClass.MEASUREMENT, None),
+    3843: (None, UnitOfElectricPotential.MILLIVOLT, SensorStateClass.MEASUREMENT, "mdi:flash"),
+    3840: (None, None, SensorStateClass.MEASUREMENT, None),
 }
 
 _SENSOR_TYPE_NAMES: dict[int, str] = {
@@ -105,11 +105,10 @@ _SENSOR_TYPE_NAMES: dict[int, str] = {
     SENSOR_TYPE_HUMIDITY: "Umidità",
     SENSOR_TYPE_OXYGEN: "Ossigeno",
     SENSOR_TYPE_VOLTAGE: "Tensione",
-    # Tipi estesi osservati su ProfiLux 4e (non documentati nel protocollo)
-    # Nomi provvisori basati sui valori osservati — correggere se sbagliati
-    1140: "Redox ext",   # valore ~420-430: plausibile ORP in mV
-    3840: "Sonda ext",   # valore null: slot sonda non attivo
-    3843: "Conducibilità ext",  # valore ~36: plausibile mS/cm o PSU
+    # Tipi estesi confermati su ProfiLux 4e
+    1140: "Conducibilità",  # mS/cm, scala 10 (raw/10 = mS/cm)
+    3840: "Sonda",          # slot non attivo (null)
+    3843: "Redox",          # mV, scala 1 (raw = mV)
 }
 
 

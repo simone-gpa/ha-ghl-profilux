@@ -89,11 +89,10 @@ SENSOR_SCALE: dict[int, float] = {
     SENSOR_TYPE_AIR_TEMPERATURE: 10.0,
     SENSOR_TYPE_OXYGEN: 10.0,
     SENSOR_TYPE_VOLTAGE: 10.0,
-    # Tipi estesi (> 10): osservati empiricamente su ProfiLux 4e, non documentati.
-    # Scala 1.0 = valore grezzo; verificare contro GHL Control Center.
-    1140: 1.0,
-    3840: 1.0,
-    3843: 1.0,
+    # Tipi estesi osservati su ProfiLux 4e (confermati dall'utente):
+    1140: 10.0,  # Conducibilità mS/cm: raw 426 / 10 = 42.6 mS/cm ✓
+    3840: 1.0,   # Sonda non attiva (null)
+    3843: 1.0,   # Redox mV: raw 36 ≈ 37 mV ✓
 }
 
 SENSOR_TYPE_NAMES: dict[int, str] = {
