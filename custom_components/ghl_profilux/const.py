@@ -77,6 +77,12 @@ SENSOR_TYPE_AIR_TEMPERATURE = 8
 SENSOR_TYPE_OXYGEN = 9
 SENSOR_TYPE_VOLTAGE = 10
 
+# Tipi PAB (Digital Power Bar) — osservati empiricamente, non documentati in profilux-go.
+# La scala e le unità sono provvisorie; verificare i valori contro GHL Control Center.
+SENSOR_TYPE_PAB_POWER = 1140   # Potenza presa PAB [W] — valore osservato: 422 W
+SENSOR_TYPE_PAB_MEAS = 3840    # Misura PAB generica (prese inattive → null)
+SENSOR_TYPE_PAB_MEAS_ACTIVE = 3843  # Misura PAB prese attive; scala TBD
+
 # ── Fattori di scala per tipo sensore ────────────────────────────────────────
 SENSOR_SCALE: dict[int, float] = {
     SENSOR_TYPE_TEMPERATURE: 10.0,
@@ -89,6 +95,9 @@ SENSOR_SCALE: dict[int, float] = {
     SENSOR_TYPE_AIR_TEMPERATURE: 10.0,
     SENSOR_TYPE_OXYGEN: 10.0,
     SENSOR_TYPE_VOLTAGE: 10.0,
+    SENSOR_TYPE_PAB_POWER: 1.0,     # già in Watt
+    SENSOR_TYPE_PAB_MEAS: 1.0,      # scala da verificare
+    SENSOR_TYPE_PAB_MEAS_ACTIVE: 1.0,  # scala da verificare
 }
 
 SENSOR_TYPE_NAMES: dict[int, str] = {

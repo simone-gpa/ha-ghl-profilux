@@ -101,8 +101,10 @@ class ProfiLuxCoordinator(DataUpdateCoordinator[ProfiLuxData]):
             4: "ProfiLux 4",
             5: "ProfiLux 4e",
             6: "ProfiLux Mini",
+            23: "ProfiLux 4e",  # variante firmware osservata
         }
-        model = product_map.get(data.product_id, "ProfiLux") if data else "ProfiLux"
+        pid = data.product_id if data else None
+        model = product_map.get(pid, f"ProfiLux (id:{pid})") if pid else "ProfiLux"
         return DeviceInfo(
             identifiers={(DOMAIN, serial)},
             manufacturer="GHL",
