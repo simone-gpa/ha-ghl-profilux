@@ -8,6 +8,7 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.const import (
+    UnitOfElectricCurrent,
     UnitOfElectricPotential,
     UnitOfTemperature,
 )
@@ -119,6 +120,8 @@ async def async_setup_entry(
     for sensor in coordinator.data.sensors:
         if sensor.sensor_type not in _SENSOR_META:
             entities.append(ProfiLuxSensor(coordinator, sensor))
+    # Corrente totale prese (Digital Power Bar / PAB) — sempre presente
+    entities.append(ProfiLuxTotalCurrentSensor(coordinator))
     async_add_entities(entities)
 
 
@@ -158,3 +161,39 @@ class ProfiLuxSensor(ProfiLuxEntity, SensorEntity):
             if s.index == self._index:
                 return s.value
         return None
+
+
+class ProfiLuxTotalCurrentSensor(ProfiLuxEntity, SensorEntity):
+    """Corrente totale istantanea di tutte le prese (Digital Power Bar / PAB).
+
+    Il protocollo WebSocket GHL espone solo il totale aggregato (SP_ALL_CURRENT,
+    codice 10127) — non sono disponibili valori per singola presa.
+    La scala esatta del valore raw dipende dal firmware; verificare il valore
+    'raw' negli attributi aggiuntivi confrontandolo con GHL Control Center.
+    """
+
+    _attr_device_class = SensorDeviceClass.CURRENT
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_native_unit_of_measurement = UnitOfElectricCurrent.AMPERE
+    _attr_suggested_display_precision = 1
+    _attr_name = "Corrente totale prese"
+
+    # Scala provvisoria: raw / 10 = A (comune nel protocollo GHL).
+    # Se il valore non corrisponde al display di GHL Control Center,
+    # verificare il raw negli attributi aggiuntivi e correggere qui.
+    _SCALE = 10.0
+
+    def __init__(self, coordinator: ProfiLuxCoordinator) -> None:
+        super().__init__(coordinator)
+        self._attr_unique_id = f"{coordinator.config_entry.entry_id}_sp_all_current"
+
+    @property
+    def native_value(self) -> StateType:
+        raw = self.coordinator.data.sp_all_current_raw
+        if raw is None:
+            return None
+        return round(raw / self._SCALE, 1)
+
+    @property
+    def extra_state_attributes(self) -> dict[str, int | None]:
+        return {"raw": self.coordinator.data.sp_all_current_raw}

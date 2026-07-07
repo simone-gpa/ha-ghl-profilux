@@ -58,6 +58,7 @@ from .const import (
     CODE_SENSOR_TYPE_BASE,
     CODE_SERIALNUMBER,
     CODE_SOFTWAREVERSION,
+    CODE_SP_ALL_CURRENT,
     CODE_SP_STATE_BASE,
     CODE_SWITCH_NAME_BASE,
     CODE_SWITCHPLUG_FUNC_BASE,
@@ -533,4 +534,18 @@ class ProfiLuxClient:
             val = await self.async_get_data(CODE_ISALARM)
             return val != 0
         except ProfiLuxError:
+            return None
+
+    async def async_read_sp_all_current(self) -> int | None:
+        """Legge la corrente totale istantanea di tutte le prese (Digital Power Bar / PAB).
+
+        Restituisce il valore grezzo intero dal controller. La scala/unità esatta
+        dipende dal firmware: verificare il valore raw contro il display del GHL
+        Control Center per determinare il fattore di conversione corretto.
+        Ritorna None se il codice non è supportato dal firmware installato.
+        """
+        try:
+            return await self.async_get_data(CODE_SP_ALL_CURRENT)
+        except ProfiLuxError as err:
+            _LOGGER.debug("SP_ALL_CURRENT non disponibile: %s", err)
             return None

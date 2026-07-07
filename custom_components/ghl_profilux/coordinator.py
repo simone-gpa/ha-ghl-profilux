@@ -63,6 +63,7 @@ class ProfiLuxData:
     firmware: int | None = None
     serial: int | None = None
     product_id: int | None = None
+    sp_all_current_raw: int | None = None  # corrente totale prese, valore grezzo (unità da verificare su HW)
 
 
 class ProfiLuxCoordinator(DataUpdateCoordinator[ProfiLuxData]):
@@ -176,6 +177,12 @@ class ProfiLuxCoordinator(DataUpdateCoordinator[ProfiLuxData]):
                     function=sw_raw.get("function"),
                 )
             )
+
+        # Corrente totale prese (Digital Power Bar / PAB)
+        raw = await client.async_read_sp_all_current()
+        if raw is not None:
+            _LOGGER.debug("SP_ALL_CURRENT raw=%d (confrontare con GHL Control Center per scala)", raw)
+        result.sp_all_current_raw = raw
 
         return result
 
