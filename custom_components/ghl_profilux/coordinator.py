@@ -16,7 +16,7 @@ from homeassistant.helpers.update_coordinator import (
     UpdateFailed,
 )
 
-from .api import ProfiLuxClient, ProfiLuxConnectionError, ProfiLuxError
+from .api import ProfiLuxClient, ProfiLuxConnectionError, ProfiLuxError, sensor_name_code
 from .const import DEFAULT_SCAN_INTERVAL, DEVICE_MODE_ALWAYS_OFF, DEVICE_MODE_ALWAYS_ON, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
@@ -90,6 +90,9 @@ class ProfiLuxCoordinator(DataUpdateCoordinator[ProfiLuxData]):
         # Numero di sensori/prese, rilevato al primo refresh
         self._sensor_count: int | None = None
         self._switch_count: int | None = None
+        # Nomi letti una sola volta (cambiano raramente)
+        self._sensor_names: dict[int, str | None] = {}
+        self._names_read = False
 
     @property
     def device_info(self) -> DeviceInfo:
@@ -155,6 +158,17 @@ class ProfiLuxCoordinator(DataUpdateCoordinator[ProfiLuxData]):
         # Allarme globale
         result.alarm = await client.async_read_alarm()
 
+        # Nomi sensori: letti una sola volta (costosi in termini di round-trip)
+        if not self._names_read:
+            for i in range(self._sensor_count):
+                try:
+                    name = await client.async_get_text(sensor_name_code(i))
+                except ProfiLuxError:
+                    name = None
+                self._sensor_names[i] = name
+            self._names_read = True
+            _LOGGER.debug("Nomi sensori letti: %s", self._sensor_names)
+
         # Sensori
         for i in range(self._sensor_count):
             sensor_raw = await client.async_read_sensor(i)
@@ -166,6 +180,7 @@ class ProfiLuxCoordinator(DataUpdateCoordinator[ProfiLuxData]):
                     index=i,
                     sensor_type=sensor_type,
                     value=sensor_raw.get("value"),
+                    name=self._sensor_names.get(i),
                 )
             )
 

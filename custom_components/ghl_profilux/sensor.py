@@ -10,7 +10,6 @@ from homeassistant.components.sensor import (
 from homeassistant.const import (
     UnitOfElectricCurrent,
     UnitOfElectricPotential,
-    UnitOfPower,
     UnitOfTemperature,
 )
 from homeassistant.core import HomeAssistant
@@ -24,9 +23,6 @@ from .const import (
     SENSOR_TYPE_FRESHWATER_CONDUCTIVITY,
     SENSOR_TYPE_HUMIDITY,
     SENSOR_TYPE_OXYGEN,
-    SENSOR_TYPE_PAB_MEAS,
-    SENSOR_TYPE_PAB_MEAS_ACTIVE,
-    SENSOR_TYPE_PAB_POWER,
     SENSOR_TYPE_PH,
     SENSOR_TYPE_REDOX,
     SENSOR_TYPE_TEMPERATURE,
@@ -93,25 +89,6 @@ _SENSOR_META: dict[
         SensorStateClass.MEASUREMENT,
         None,
     ),
-    # Tipi PAB (Digital Power Bar) — scala da verificare contro GHL Control Center
-    SENSOR_TYPE_PAB_POWER: (
-        SensorDeviceClass.POWER,
-        UnitOfPower.WATT,
-        SensorStateClass.MEASUREMENT,
-        "mdi:lightning-bolt",
-    ),
-    SENSOR_TYPE_PAB_MEAS: (
-        None,
-        None,
-        SensorStateClass.MEASUREMENT,
-        "mdi:current-ac",
-    ),
-    SENSOR_TYPE_PAB_MEAS_ACTIVE: (
-        None,
-        None,
-        SensorStateClass.MEASUREMENT,
-        "mdi:current-ac",
-    ),
 }
 
 _SENSOR_TYPE_NAMES: dict[int, str] = {
@@ -124,9 +101,6 @@ _SENSOR_TYPE_NAMES: dict[int, str] = {
     SENSOR_TYPE_HUMIDITY: "Umidità",
     SENSOR_TYPE_OXYGEN: "Ossigeno",
     SENSOR_TYPE_VOLTAGE: "Tensione",
-    SENSOR_TYPE_PAB_POWER: "Potenza PAB",
-    SENSOR_TYPE_PAB_MEAS: "Misura PAB",
-    SENSOR_TYPE_PAB_MEAS_ACTIVE: "Misura PAB",
 }
 
 
@@ -174,9 +148,12 @@ class ProfiLuxSensor(ProfiLuxEntity, SensorEntity):
         else:
             self._attr_native_unit_of_measurement = None
 
-        type_name = _SENSOR_TYPE_NAMES.get(sensor.sensor_type, f"Sensore {sensor.sensor_type}")
-        # Slot 1-based per l'utente
-        self._attr_name = f"{type_name} (slot {sensor.index + 1})"
+        # Usa il nome configurato nel ProfiLux se disponibile, altrimenti il tipo
+        if sensor.name:
+            self._attr_name = sensor.name
+        else:
+            type_name = _SENSOR_TYPE_NAMES.get(sensor.sensor_type, f"Sensore {sensor.sensor_type}")
+            self._attr_name = f"{type_name} (slot {sensor.index + 1})"
         self._attr_unique_id = f"{coordinator.config_entry.entry_id}_sensor_{sensor.index}"
         self._attr_suggested_display_precision = 1
 

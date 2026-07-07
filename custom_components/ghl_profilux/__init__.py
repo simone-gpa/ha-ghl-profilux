@@ -14,13 +14,15 @@ from .api import ProfiLuxAuthError, ProfiLuxClient, ProfiLuxConnectionError
 from .const import PLATFORMS
 from .coordinator import ProfiLuxCoordinator
 
+_LOGGER = logging.getLogger(__name__)
+
+# Definito PRIMA dei pre-import delle piattaforme: evita il circular import
+# quando HA 2026+ carica il componente in un executor thread.
+ProfiLuxConfigEntry = ConfigEntry[ProfiLuxCoordinator]
+
 # Pre-import delle piattaforme: evita che async_forward_entry_setups chiami
 # importlib.import_module() dentro l'event loop (bloccante su Python 3.14+).
 from . import binary_sensor, button, sensor, switch  # noqa: F401, E402
-
-_LOGGER = logging.getLogger(__name__)
-
-ProfiLuxConfigEntry = ConfigEntry[ProfiLuxCoordinator]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ProfiLuxConfigEntry) -> bool:
