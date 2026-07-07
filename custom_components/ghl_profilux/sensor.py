@@ -8,7 +8,6 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.const import (
-    CONCENTRATION_MILLIGRAMS_PER_LITER,
     UnitOfElectricPotential,
     UnitOfTemperature,
 )
@@ -79,7 +78,7 @@ _SENSOR_META: dict[
     ),
     SENSOR_TYPE_OXYGEN: (
         None,
-        CONCENTRATION_MILLIGRAMS_PER_LITER,
+        "mg/L",
         SensorStateClass.MEASUREMENT,
         "mdi:fish",
     ),
